@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="all" name="Buildfile for CITREC">
+	<property file="build.local.properties" />
+	<property file="build.properties" />
+	
+	<target name="all" description="Build All" depends="import, similarity, eval, LuceneTest" />
+	<target name="import" depends="PmcXmlImport, ReferenceDocumentsDisambiguator, MeshTreeImport, MeshXmlImport, MeshRetriever, MeshInformationContent, TrecMetadataRetriever, TrecImport" />
+	<target name="similarity" depends="SimilarityAllCitationProximityAnalysis, SimilarityAllCoCitation, SimilarityAmsler, SimilarityBibliographicCoupling, SimilarityCitationProximityAnalysis, SimilarityContextualCocitation, SimilarityCoCitation, SimilarityLinkThrough, SimilarityLuceneMoreLikeThis, SimilarityMeshLin, SimilarityMeshIntersections" />
+	<target name="eval" depends="EvaluationIntersections, EvaluationKendallsTau" />
+
+	<target name="upload" description="Upload" depends="all">
+		<exec executable="rsync">
+			<arg line="-vrlt --chmod=ug=rwX --exclude .svn dist/ ${remote.server}:${remote.dir}" />
+		</exec>
+	</target>
+
+	<target name="PmcXmlImport" depends="lib_mysql, lib_sl4j-api, lib_sl4j-log4j, lib_log4j, lib_guava, lib_spToolkit, lib_lucene">
+        <jar destfile="dist/PMC XML Import.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.dataimport.PmcXmlImport"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/mysql-connector-java-5.1.13-bin.jar lib/guava-r09.jar lib/spToolkit.jar lib/lucene-core-3.4.0.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+	
+	<target name="EvaluationIntersections" depends="lib_mysql, lib_sl4j-api, lib_sl4j-log4j, lib_log4j">
+        <jar destfile="dist/Evaluation Intersections.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.eval.Intersections"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/mysql-connector-java-5.1.13-bin.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+	
+	<target name="EvaluationKendallsTau" depends="lib_mysql, lib_sl4j-api, lib_sl4j-log4j, lib_log4j">
+        <jar destfile="dist/Evaluation Kendalls Tau.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.eval.KendallsTau"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/mysql-connector-java-5.1.13-bin.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+	
+	<target name="MeshTreeImport" depends="lib_mysql, lib_sl4j-api, lib_sl4j-log4j, lib_log4j">
+        <jar destfile="dist/MeSH Tree Import.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.dataimport.MeshTree"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/mysql-connector-java-5.1.13-bin.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+	
+	<target name="MeshXmlImport" depends="lib_mysql, lib_sl4j-api, lib_sl4j-log4j, lib_log4j">
+        <jar destfile="dist/MeSH XML Import.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.dataimport.MeshXml"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/mysql-connector-java-5.1.13-bin.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+	
+	<target name="MeshInformationContent" depends="lib_mysql">
+        <jar destfile="dist/MeSH Information Content.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.dataimport.MeshInformationContent"/>
+                <attribute name="Class-Path" value=". lib/mysql-connector-java-5.1.13-bin.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+	
+	<target name="MeshRetriever" depends="lib_mysql, lib_sl4j-api, lib_sl4j-log4j, lib_log4j, lib_axis, lib_commons-discovery, lib_eutils, lib_javax.wsdl, lib_jaxrpc, lib_commons-logging">
+        <jar destfile="dist/MeSH Descriptor Retriever.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.dataimport.MeshRetriever"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/mysql-connector-java-5.1.13-bin.jar lib/axis.jar lib/commons-discovery-0.2.jar lib/Eutils.jar lib/javax.wsdl_1.6.2.v201005080631.jar lib/jaxrpc.jar lib/org.apache.commons.logging_1.0.4.v201005080501.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+	
+	<target name="TrecMetadataRetriever" depends="lib_mysql, lib_sl4j-api, lib_sl4j-log4j, lib_log4j, lib_axis, lib_commons-discovery, lib_eutils, lib_javax.wsdl, lib_jaxrpc, lib_commons-logging">
+        <jar destfile="dist/Trec Metadata Retriever.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.dataimport.TrecMetadataRetriever"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/mysql-connector-java-5.1.13-bin.jar lib/axis.jar lib/commons-discovery-0.2.jar lib/Eutils.jar lib/javax.wsdl_1.6.2.v201005080631.jar lib/jaxrpc.jar lib/org.apache.commons.logging_1.0.4.v201005080501.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+	
+	<target name="TrecImport" depends="lib_mysql, lib_sl4j-api, lib_sl4j-log4j, lib_log4j, lib_axis, lib_commons-logging, lib_commons-discovery, lib_jsoup, lib_c3p0">
+        <jar destfile="dist/Trec Import.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.dataimport.TrecImport"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/mysql-connector-java-5.1.13-bin.jar lib/axis.jar lib/org.apache.commons.logging_1.0.4.v201005080501.jar lib/commons-discovery-0.2.jar lib/jsoup-1.6.1.jar lib/c3p0-0.9.1.2.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+	
+	<target name="ReferenceDocumentsDisambiguator" depends="lib_mysql, lib_sl4j-api, lib_sl4j-log4j, lib_log4j, lib_guava">
+        <jar destfile="dist/Reference Documents Disambiguator.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.dataimport.ReferenceDocumentsDisambiguator"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/mysql-connector-java-5.1.13-bin.jar lib/guava-r09.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+	
+	<target name="SimilarityAllCitationProximityAnalysis" depends="lib_mysql, lib_sl4j-api, lib_sl4j-log4j, lib_log4j">
+        <jar destfile="dist/Similarity All Citation Proximity Analysis.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.sim.AllCitationProximityAnalysis"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/mysql-connector-java-5.1.13-bin.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+	
+	<target name="SimilarityAllCoCitation" depends="lib_mysql, lib_sl4j-api, lib_sl4j-log4j, lib_log4j">
+        <jar destfile="dist/Similarity All Co-Citation.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.sim.AllCoCitation"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/mysql-connector-java-5.1.13-bin.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+	</target>
+	
+	<target name="SimilarityAmsler" depends="lib_mysql, lib_sl4j-api, lib_sl4j-log4j, lib_log4j, lib_guava">
+        <jar destfile="dist/Similarity Amsler.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.sim.Amsler"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/mysql-connector-java-5.1.13-bin.jar lib/guava-r09.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+	
+	<target name="SimilarityBibliographicCoupling" depends="lib_mysql, lib_sl4j-api, lib_sl4j-log4j, lib_log4j">
+        <jar destfile="dist/Similarity Bibliographic Coupling.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.sim.BibliographicCoupling"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/mysql-connector-java-5.1.13-bin.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+	
+	<target name="SimilarityCitationProximityAnalysis" depends="lib_mysql, lib_sl4j-api, lib_sl4j-log4j, lib_log4j">
+        <jar destfile="dist/Similarity Citation Proximity Analysis.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.sim.CitationProximityAnalysis"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/mysql-connector-java-5.1.13-bin.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+	
+	<target name="SimilarityCoCitation" depends="lib_mysql, lib_sl4j-api, lib_sl4j-log4j, lib_log4j">
+        <jar destfile="dist/Similarity Co-Citation.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.sim.CoCitation"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/mysql-connector-java-5.1.13-bin.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+	
+	<target name="SimilarityContextualCocitation" depends="lib_mysql, lib_sl4j-api, lib_sl4j-log4j, lib_log4j">
+        <jar destfile="dist/Similarity Contextual Cocitation.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.sim.ContextualCocitation"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/mysql-connector-java-5.1.13-bin.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+	
+	<target name="SimilarityLinkThrough" depends="lib_mysql, lib_sl4j-api, lib_sl4j-log4j, lib_log4j">
+        <jar destfile="dist/Similarity Link Through.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.sim.LinkThrough"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/mysql-connector-java-5.1.13-bin.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+	
+	<target name="SimilarityLuceneMoreLikeThis" depends="lib_mysql, lib_sl4j-api, lib_sl4j-log4j, lib_log4j, lib_lucene, lib_lucene-queries, lib_guava">
+        <jar destfile="dist/Similarity Lucene MoreLikeThis.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.sim.LuceneMoreLikeThis"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/mysql-connector-java-5.1.13-bin.jar lib/lucene-core-3.4.0.jar lib/lucene-queries-3.4.0.jar lib/guava-r09.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+	
+	<target name="SimilarityMeshIntersections" depends="lib_mysql, lib_sl4j-api, lib_sl4j-log4j, lib_log4j">
+        <jar destfile="dist/Similarity MeSH Intersections.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.sim.MeshIntersections"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/mysql-connector-java-5.1.13-bin.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+
+	<target name="SimilarityMeshLin" depends="lib_mysql, lib_sl4j-api, lib_sl4j-log4j, lib_log4j">
+        <jar destfile="dist/Similarity MeSH Lin.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.sim.MeshLin"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/mysql-connector-java-5.1.13-bin.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+	
+	<target name="LuceneTest" depends="lib_sl4j-api, lib_sl4j-log4j, lib_log4j, lib_lucene">
+        <jar destfile="dist/Lucene Test.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.sciplore.citrec.LuceneTest"/>
+                <attribute name="Class-Path" value=". lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/log4j-1.2.16.jar lib/lucene-core-3.4.0.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+	
+    <target name="libs">
+		<mkdir dir="dist/lib"/>
+    </target>
+			
+    <target name="lib_mysql" depends="libs">
+        <copy file="lib/mysql-connector-java-5.1.13-bin.jar" todir="dist/lib"/>
+	</target>
+	
+    <target name="lib_c3p0" depends="libs">
+        <copy file="lib/c3p0-0.9.1.2.jar" todir="dist/lib"/>
+	</target>
+	
+    <target name="lib_sl4j-api" depends="libs">
+        <copy file="lib/slf4j-api-1.6.2.jar" todir="dist/lib"/>
+	</target>
+	
+    <target name="lib_sl4j-log4j" depends="libs">
+        <copy file="lib/slf4j-log4j12-1.6.2.jar" todir="dist/lib"/>
+	</target>
+	
+    <target name="lib_log4j" depends="libs">
+    	<copy file="lib/log4j-1.2.16.jar" todir="dist/lib"/>
+	</target>
+	
+    <target name="lib_guava" depends="libs">
+        <copy file="lib/guava-r09.jar" todir="dist/lib"/>
+	</target>
+
+    <target name="lib_jsoup" depends="libs">
+        <copy file="lib/jsoup-1.6.1.jar" todir="dist/lib"/>
+	</target>
+
+	<target name="lib_spToolkit" depends="libs">
+        <copy file="lib/spToolkit.jar" todir="dist/lib"/>
+	</target>
+
+	<target name="lib_lucene" depends="libs">
+        <copy file="lib/lucene-core-3.4.0.jar" todir="dist/lib"/>
+	</target>
+
+	<target name="lib_lucene-queries" depends="libs">
+        <copy file="lib/lucene-queries-3.4.0.jar" todir="dist/lib"/>
+	</target>
+	
+	<target name="lib_axis" depends="libs">
+        <copy file="lib/axis.jar" todir="dist/lib"/>
+	</target>
+	
+	<target name="lib_commons-discovery" depends="libs">
+        <copy file="lib/commons-discovery-0.2.jar" todir="dist/lib"/>
+	</target>
+	
+	<target name="lib_javax.wsdl" depends="libs">
+	    <copy file="lib/javax.wsdl_1.6.2.v201005080631.jar" todir="dist/lib"/>
+	</target>
+		
+	<target name="lib_jaxrpc" depends="libs">
+	    <copy file="lib/jaxrpc.jar" todir="dist/lib"/>
+	</target>
+		
+	<target name="lib_eutils" depends="libs">
+	    <copy file="lib/Eutils.jar" todir="dist/lib"/>
+	</target>
+		
+	<target name="lib_commons-logging" depends="libs">
+	    <copy file="lib/org.apache.commons.logging_1.0.4.v201005080501.jar" todir="dist/lib"/>
+	</target>
+</project>
