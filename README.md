@@ -1,5 +1,5 @@
-# Source code for the open evaluation framework CITREC#
-**See http://www.sciplore.org/projects/citrec**  
+# Source code for the open evaluation framework CITREC
+**See https://purl.org/citrec**  
 
 The code includes:
 
